@@ -5,6 +5,9 @@ import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -15,16 +18,20 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val btn_block = findViewById<Button>(R.id.btn_gui_block)
+        val btnBlock = findViewById<Button>(R.id.btn_gui_block)
 
-        btn_block.setOnClickListener {
+        btnBlock.setOnClickListener {
             freeze7Seconds(it)
         }
 
-        val btn_demo = findViewById<Button>(R.id.btn_thread_start)
+        val btnDemo = findViewById<Button>(R.id.btn_thread_start)
 
-        btn_demo.setOnClickListener {
-            startDemoThread(it)
+        btnDemo.setOnClickListener(this::startDemoThread)
+
+        val btnWorker = findViewById<Button>(R.id.btn_worker_start)
+
+        btnWorker.setOnClickListener {
+            startDemoWorker(it)
         }
     }
 
@@ -37,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun startDemoThread(view: View?) {
         if (!demoThread.isAlive) {
             demoThread = createDemoThread()
@@ -59,5 +67,18 @@ class MainActivity : AppCompatActivity() {
                 //TODO
             }
         }
+    }
+
+    @Suppress("UNUSED_PARAMETERS")
+    fun startDemoWorker(v: View?) {
+        val workManager = WorkManager.getInstance(application)
+        val demoWorkerRequest = OneTimeWorkRequestBuilder<DemoWorker>()
+            .setInputData(
+                Data.Builder()
+                    .putLong(DemoWorker.WAITING_TIME_KEY, WAITING_TIME_MILIS)
+                    .build()
+            )
+            .build()
+        workManager.enqueue(demoWorkerRequest)
     }
 }
