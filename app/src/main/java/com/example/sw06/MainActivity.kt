@@ -2,13 +2,20 @@ package com.example.sw06
 
 import android.os.Bundle
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -16,10 +23,16 @@ class MainActivity : AppCompatActivity() {
     private val WAITING_TIME_MILIS: Long = 7000
     private var demoThread: Thread = createDemoThread()
     private val bandsViewModel: BandsViewModel by viewModels()
+    private var imageView: ImageView? = null
+    private var txtBandInfo: TextView? = null
+    private var txtBandName: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        makeUnvisible()
+
         val btnBlock = findViewById<Button>(R.id.btn_gui_block)
 
         btnBlock.setOnClickListener {
@@ -35,11 +48,35 @@ class MainActivity : AppCompatActivity() {
         btnWorker.setOnClickListener {
             startDemoWorker(it)
         }
-        val btn_request = findViewById<Button>(R.id.btn_api_request)
+        val btn_request = findViewById<Button>(R.id.btn_get_json)
 
         btn_request.setOnClickListener {
-            bandsViewModel.getBandinfo()
+            bandsViewModel.getBands()
         }
+
+        val btn_reset = findViewById<Button>(R.id.btn_reset_view_model)
+
+        btn_reset.setOnClickListener {
+            bandsViewModel.resetViewModel()
+        }
+
+        val btn_chooseBand = findViewById<Button>(R.id.btn_choose_band)
+
+        btn_chooseBand.setOnClickListener {
+            chooseBand()
+        }
+
+        bandsViewModel.bands?.observe(this, Observer {
+            main_nubmer_of_bands.text = "#Bands = ${bandsViewModel.bands?.value?.size}"
+        })
+
+        bandsViewModel.currentBand?.observe(this, Observer {
+            makeVisible()
+            main_current_band_name.text = "${bandsViewModel.currentBand?.value?.name}"
+            main_current_band_info.text = "${bandsViewModel.currentBand?.value?.homeCountry}"
+            Picasso.get().load(bandsViewModel.currentBand?.value?.bestOfCdCoverImageUrl)
+                .into(imageView)
+        })
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -87,5 +124,29 @@ class MainActivity : AppCompatActivity() {
             )
             .build()
         workManager.enqueue(demoWorkerRequest)
+    }
+    
+    private fun makeVisible() {
+        imageView?.visibility = VISIBLE
+        txtBandInfo?.visibility = VISIBLE
+        txtBandName?.visibility = VISIBLE
+    }
+
+    private fun makeUnvisible() {
+        imageView?.visibility = GONE
+        txtBandInfo?.visibility = GONE
+        txtBandName?.visibility = GONE
+    }
+
+    private fun chooseBand() {
+        bandsViewModel.getBands()
+        var builder = AlertDialog.Builder(this)
+        val bandsToChoose: Array<String>? = bandsViewModel.getArrayListBands()
+        builder.setTitle("Wählen Sie eine Band aus")
+        builder?.setItems(bandsToChoose) { _, which ->
+            bandsViewModel.getCurrentBand(bandsViewModel.bands?.value?.get(which)?.code)
+        }
+        builder.create()
+        builder.show()
     }
 }
