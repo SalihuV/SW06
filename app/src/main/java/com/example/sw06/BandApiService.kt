@@ -1,8 +1,6 @@
 package com.example.sw06
 
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.JsonClass
-import com.squareup.moshi.Moshi
+
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path

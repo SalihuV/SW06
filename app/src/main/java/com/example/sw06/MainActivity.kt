@@ -1,5 +1,6 @@
 package com.example.sw06
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.view.View.GONE
@@ -27,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private var txtBandInfo: TextView? = null
     private var txtBandName: TextView? = null
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -54,9 +56,9 @@ class MainActivity : AppCompatActivity() {
             bandsViewModel.getBands()
         }
 
-        val btn_reset = findViewById<Button>(R.id.btn_reset_view_model)
+        val btnReset = findViewById<Button>(R.id.btn_reset_view_model)
 
-        btn_reset.setOnClickListener {
+        btnReset.setOnClickListener {
             bandsViewModel.resetViewModel()
         }
 
@@ -88,6 +90,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n", "ShowToast")
     @Suppress("UNUSED_PARAMETER")
     private fun startDemoThread(view: View?) {
         if (!demoThread.isAlive) {
@@ -101,6 +104,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun createDemoThread(): Thread {
         return object : Thread("HSLUDemoThread") {
+            @SuppressLint("ShowToast")
             override fun run() = try {
                 sleep(WAITING_TIME_MILIS)
                 runOnUiThread {
