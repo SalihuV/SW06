@@ -76,8 +76,10 @@ class MainActivity : AppCompatActivity() {
             makeVisible()
             main_current_band_name.text = "${bandsViewModel.currentBand?.value?.name}"
             main_current_band_info.text = "${bandsViewModel.currentBand?.value?.homeCountry}"
-            Picasso.get().load(bandsViewModel.currentBand?.value?.bestOfCdCoverImageUrl)
-                .into(imageView)
+            if (bandsViewModel.currentBand?.value?.bestOfCdCoverImageUrl != null) {
+                Picasso.get().load(bandsViewModel.currentBand?.value?.bestOfCdCoverImageUrl)
+                    .into(img_band_picture)
+            }
         })
     }
 
@@ -110,6 +112,7 @@ class MainActivity : AppCompatActivity() {
                 runOnUiThread {
                     btn_thread_start.text = "Demo-Thread starten"
                     Toast.makeText(this@MainActivity, "Demo Thread beendet!", Toast.LENGTH_LONG)
+                        .show()
                 }
             } catch (e: InterruptedException) {
                 //TODO
